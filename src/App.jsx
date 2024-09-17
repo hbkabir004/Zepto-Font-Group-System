@@ -40,11 +40,10 @@ const App = () => {
   const [fonts, setFonts] = useState([]);
   const [selectedFonts, setSelectedFonts] = useState([{ fontName: '' }]);
   const [fontGroups, setFontGroups] = useState([]);
+  const [isDragging, setIsDragging] = useState(false); // New state to track dragging
 
   // Handle File Upload
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-
+  const handleFileUpload = (file) => {
     if (file && file.name.endsWith('.ttf')) {
       const fileReader = new FileReader();
 
@@ -74,6 +73,30 @@ const App = () => {
     } else {
       alert('Please upload only TTF files!');
     }
+  };
+
+  // Handle file input change
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    handleFileUpload(file);
+  };
+
+  // Handle drag and drop
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true); // Indicate dragging
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false); // Reset dragging state
+
+    const file = e.dataTransfer.files[0];
+    handleFileUpload(file);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false); // Reset dragging state when leaving the area
   };
 
   const deleteFont = (fontName) => {
@@ -124,8 +147,14 @@ const App = () => {
 
   return (
     <div className="container mx-auto p-5">
-      {/* Upload Section */}
-      <div className="border-dashed border-2 border-gray-400 rounded-lg p-10 text-center mb-6">
+      {/* Upload Section with Drag and Drop */}
+      <div
+        className={`border-dashed border-2 ${isDragging ? 'border-blue-400' : 'border-gray-400'} 
+          rounded-lg p-10 text-center mb-6`}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onDragLeave={handleDragLeave}
+      >
         <label htmlFor="fileUpload" className="cursor-pointer">
           <p className="text-lg">Click to upload or drag and drop</p>
           <p className="text-sm text-gray-500">Only TTF File Allowed</p>
@@ -135,7 +164,7 @@ const App = () => {
           id="fileUpload"
           accept=".ttf"
           className="hidden"
-          onChange={handleFileUpload}
+          onChange={handleFileInputChange}
         />
       </div>
 
@@ -217,27 +246,21 @@ const App = () => {
               <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                 <tr>
                   <th className="px-4 py-3 text-left">Group</th>
-                  <th className="px-4 py-3 text-left">Count</th> {/* Added Count column */}
+                  <th className="px-4 py-3 text-left">Count</th>
                   <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-gray-600 text-sm font-light">
                 {fontGroups.map((group, index) => (
-                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 font-medium">
+                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      {group.map((font, i) => (
-                        <span key={i} className="mr-2 bg-gray-200 text-gray-700 py-1 px-2 rounded-lg">
-                          {font.fontName}
-                        </span>
-                      ))}
+                      {group.map((font) => font.fontName).join(', ')}
                     </td>
-                    <td className="px-4 py-3"> {/* Count column */}
-                      {group.length} {/* Calculate the number of fonts */}
-                    </td>
+                    <td className="px-4 py-3">{group.length}</td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleEditGroup(index)}
-                        className="text-blue-500 hover:text-blue-600 mr-4 transition-colors duration-200"
+                        className="text-blue-500 hover:text-blue-600 transition-colors duration-200 mr-4"
                       >
                         Edit
                       </button>
@@ -253,8 +276,6 @@ const App = () => {
               </tbody>
             </table>
           </div>
-
-
         )}
       </div>
     </div>
