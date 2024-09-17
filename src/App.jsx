@@ -76,6 +76,10 @@ const App = () => {
     }
   };
 
+  const deleteFont = (fontName) => {
+    setFonts((prevFonts) => prevFonts.filter((font) => font.name !== fontName));
+  };
+
   // Add new row for selecting fonts in group
   const handleAddRow = () => {
     setSelectedFonts([...selectedFonts, { fontName: '' }]);
@@ -138,25 +142,25 @@ const App = () => {
       {/* Font List Section */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Our Fonts</h2>
-        <table className="min-w-full bg-white">
-          <thead>
+        <table className="w-full table-auto bg-white shadow-md rounded-lg overflow-hidden">
+          <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
             <tr>
-              <th className="px-4 py-2">Font Name</th>
-              <th className="px-4 py-2">Preview</th>
-              <th className="px-4 py-2">Actions</th>
+              <th className="px-4 py-3 text-left">Font Name</th>
+              <th className="px-4 py-3 text-left">Preview</th>
+              <th className="px-4 py-3 text-left">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-gray-600 text-sm font-light">
             {fonts.map((font) => (
-              <tr key={font.name}>
-                <td className="border px-4 py-2">{font.name}</td>
-                <td className="border px-4 py-2" style={{ fontFamily: `${font.name}` }}>
+              <tr key={font.name} className="border-b border-gray-200 hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium">{font.name}</td>
+                <td className="px-4 py-3" style={{ fontFamily: `${font.name}` }}>
                   Example Style
                 </td>
-                <td className="border px-4 py-2">
+                <td className="px-4 py-3">
                   <button
-                    onClick={() => fontGroup.deleteFont(font.name)}
-                    className="text-red-500 hover:text-red-700"
+                    onClick={() => deleteFont(font.name)}
+                    className="text-red-500 hover:text-red-600 transition-colors duration-200"
                   >
                     Delete
                   </button>
@@ -208,39 +212,49 @@ const App = () => {
         {fontGroups.length === 0 ? (
           <p>No font groups created yet.</p>
         ) : (
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">Group</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {fontGroups.map((group, index) => (
-                <tr key={index}>
-                  <td className="border px-4 py-2">
-                    {group.map((font, i) => (
-                      <span key={i} className="mr-2">{font.fontName}</span>
-                    ))}
-                  </td>
-                  <td className="border px-4 py-2">
-                    <button
-                      onClick={() => handleEditGroup(index)}
-                      className="text-blue-500 mr-4"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteGroup(index)}
-                      className="text-red-500"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto bg-white shadow-md rounded-lg overflow-hidden">
+              <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                <tr>
+                  <th className="px-4 py-3 text-left">Group</th>
+                  <th className="px-4 py-3 text-left">Count</th> {/* Added Count column */}
+                  <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="text-gray-600 text-sm font-light">
+                {fontGroups.map((group, index) => (
+                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 font-medium">
+                    <td className="px-4 py-3">
+                      {group.map((font, i) => (
+                        <span key={i} className="mr-2 bg-gray-200 text-gray-700 py-1 px-2 rounded-lg">
+                          {font.fontName}
+                        </span>
+                      ))}
+                    </td>
+                    <td className="px-4 py-3"> {/* Count column */}
+                      {group.length} {/* Calculate the number of fonts */}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => handleEditGroup(index)}
+                        className="text-blue-500 hover:text-blue-600 mr-4 transition-colors duration-200"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteGroup(index)}
+                        className="text-red-500 hover:text-red-600 transition-colors duration-200"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+
         )}
       </div>
     </div>
