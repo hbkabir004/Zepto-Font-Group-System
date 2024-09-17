@@ -94,14 +94,12 @@ Ensure you have the following tools installed on your machine:
 ### Steps to Install
 
 1. **Clone the repository** :
-   
+
    ```sh
    git clone https://github.com/hbkabir004/Zepto-Font-Group-System.git
    cd Zepto-Font-Group-System
    ```
-</code></div></div></pre>
-
-1. **Install dependencies** :
+2. **Install dependencies** :
    Using  **npm** :
 
    ```sh
@@ -113,31 +111,31 @@ Ensure you have the following tools installed on your machine:
    ```sh
    yarn install
    ```
-   
-1. **Start the development server** :
+3. **Start the development server** :
 
    ```sh
    npm run dev
    ```
+
    This will start the application locally. Open your browser and navigate to [http://localhost:5173](http://localhost:5173/) to view the app.
 
 ---
 
 ## How to Use
 
-1. **Uploading Fonts** :
+###### **Uploading Fonts** :
 
 * Drag and drop a `.ttf` font file into the upload area or click to browse for a file.
 * Upon successful upload, the font will appear in the "Our Fonts" list, displaying the font name and a preview in the uploaded style.
 
-1. **Creating Font Groups** :
+###### **Creating Font Groups** :
 
 * Click "Add Row" to add a new font selection field.
 * Select at least two fonts from the dropdown to create a group.
 * Once the group is valid, click "Submit" to save the group.
 * The group will be displayed in the "Font Group List" with an option to edit or delete it.
 
-1. **Managing Font Groups** :
+###### **Managing Font Groups** :
 
 * View the list of all font groups, including the number of fonts in each group.
 * Edit or delete font groups directly from the list.
