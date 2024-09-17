@@ -9,7 +9,6 @@
 5. [Installation Guide](#installation-guide)
 6. [How to Use](#how-to-use)
 7. [Contributing](#contributing)
-8. [License](#license)
 
 ---
 
@@ -59,14 +58,16 @@ Here’s a breakdown of the project directory structure:
 ├── public/
 │   └── index.html        # Main HTML file
 ├── src/
-│   ├── components/       # React components for various parts of the application
-│   ├── App.jsx           # Main application logic and routing
-│   ├── index.js          # React entry point
-│   └── styles.css        # Global styles, including TailwindCSS
+│   ├── fonts             # .ttf file fonts to test the application
+│   ├── App.jsx           # Main application logic
+│   ├── index.css         # Global styles, including TailwindCSS
+│   ├── main.jsx          # React entry point
+│   
 ├── package.json          # Node.js dependencies and project info
 ├── index.html        	  # Main HTML file
 ├── README.md             # Project documentation
 └── tailwind.config.js    # TailwindCSS configuration
+└── vite.config.js    	  # Vite.js configuration
 </code></div></div></pre>
 
 ---
@@ -76,7 +77,7 @@ Here’s a breakdown of the project directory structure:
 * **React.js** : JavaScript library for building user interfaces.
 * **Vite.js** : Fast and lightweight build tool for modern web development.
 * **TailwindCSS** : Utility-first CSS framework for custom design.
-* **JavaScript (ES6+)** : Core logic implementation.
+* **JavaScript (ES6+)** **& OOP**: Core logic implementation.
 * **HTML5 & CSS3** : Structure and styles for the project.
 * **Node.js** : For managing dependencies and running the development server.
 
