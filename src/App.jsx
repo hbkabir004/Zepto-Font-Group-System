@@ -146,7 +146,7 @@ const App = () => {
   };
 
   return (
-    <div className="container mx-auto p-5">
+    <div className="container mx-auto p-5 mb-10">
       {/* Upload Section with Drag and Drop */}
       <div
         className={`border-dashed border-2 ${isDragging ? 'border-blue-400' : 'border-gray-400'} 
@@ -246,21 +246,27 @@ const App = () => {
               <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                 <tr>
                   <th className="px-4 py-3 text-left">Group</th>
-                  <th className="px-4 py-3 text-left">Count</th>
+                  <th className="px-4 py-3 text-left">Count</th> {/* Added Count column */}
                   <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-gray-600 text-sm font-light">
                 {fontGroups.map((group, index) => (
-                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 font-medium">
                     <td className="px-4 py-3">
-                      {group.map((font) => font.fontName).join(', ')}
+                      {group.map((font, i) => (
+                        <span key={i} className="mr-2 bg-gray-200 text-gray-700 py-1 px-2 rounded-lg">
+                          {font.fontName}
+                        </span>
+                      ))}
                     </td>
-                    <td className="px-4 py-3">{group.length}</td>
+                    <td className="px-4 py-3"> {/* Count column */}
+                      {group.length} {/* Calculate the number of fonts */}
+                    </td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleEditGroup(index)}
-                        className="text-blue-500 hover:text-blue-600 transition-colors duration-200 mr-4"
+                        className="text-blue-500 hover:text-blue-600 mr-4 transition-colors duration-200"
                       >
                         Edit
                       </button>
@@ -276,6 +282,7 @@ const App = () => {
               </tbody>
             </table>
           </div>
+
         )}
       </div>
     </div>
