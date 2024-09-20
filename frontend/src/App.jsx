@@ -44,36 +44,44 @@ const App = () => {
 
   // Handle File Upload
   const handleFileUpload = (file) => {
-    if (file && file.name.endsWith('.ttf')) {
-      const fileReader = new FileReader();
+    if (file?.name?.endsWith('.ttf')) {
+      const formData = new FormData();
+      formData.append('fontFile', file);
 
-      fileReader.onload = () => {
-        const font = {
-          name: file.name.replace('.ttf', ''), // Remove the .ttf extension
-          data: fileReader.result,
-        };
+      fetch('http://localhost:8000/upload.php', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 'success') {
+            const font = {
+              name: data.fontName,
+              path: data.fontPath,
+            };
+            fontGroup.addFont(font);
+            setFonts([...fontGroup.getFonts()]);
 
-        fontGroup.addFont(font);
-        setFonts([...fontGroup.getFonts()]);
-
-        // Dynamically inject font into document
-        const newStyle = document.createElement('style');
-        newStyle.appendChild(
-          document.createTextNode(`
-            @font-face {
-              font-family: '${font.name}';
-              src: url(${font.data});
-            }
-          `)
-        );
-        document.head.appendChild(newStyle);
-      };
-
-      fileReader.readAsDataURL(file);
+            // Dynamically inject font into document
+            const newStyle = document.createElement('style');
+            newStyle.appendChild(
+              document.createTextNode(`
+                @font-face {
+                  font-family: '${font.name}';
+                  src: url(${font.path});
+                }
+              `)
+            );
+            document.head.appendChild(newStyle);
+          } else {
+            alert(data.message);
+          }
+        });
     } else {
       alert('Please upload only TTF files!');
     }
   };
+
 
   // Handle file input change
   const handleFileInputChange = (e) => {
@@ -114,6 +122,7 @@ const App = () => {
       i === index ? { ...font, fontName: value } : font
     );
     setSelectedFonts(updatedFonts);
+
   };
 
   // Create a font group with selected fonts
@@ -125,17 +134,50 @@ const App = () => {
       return;
     }
 
-    fontGroup.addGroup(validFonts);
-    setFontGroups([...fontGroup.getGroups()]);
-
-    // Reset the font selection after creating a group
-    setSelectedFonts([{ fontName: '' }]);
+    fetch('http://localhost:8000/font-groups.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        action: 'create',
+        group: JSON.stringify(validFonts),
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 'success') {
+          setFontGroups(data.fontGroups);
+        } else {
+          alert(data.message);
+        }
+      });
   };
 
   // Handle delete group
   const handleDeleteGroup = (index) => {
-    fontGroup.deleteGroup(index);
-    setFontGroups([...fontGroup.getGroups()]);
+    fetch('http://localhost:8000/font-groups.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        action: 'delete',
+        index: index,
+      }),
+    }).then((response) => response.json())
+      .then((data) => {
+        console.log("data", data);
+
+        if (data.status === 'success') {
+          setFontGroups(data.fontGroups);
+        } else {
+          alert(data.message);
+        }
+      });
+
+    console.log(fontGroups); // Your array of font groups
+    console.log(index); // The index you're trying to access
   };
 
   // Handle edit group
@@ -144,6 +186,8 @@ const App = () => {
     setSelectedFonts(groupToEdit);
     handleDeleteGroup(index); // Remove old group before editing
   };
+
+
 
   return (
     <div className="container mx-auto p-5 mb-10">
@@ -243,13 +287,21 @@ const App = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full table-auto bg-white shadow-md rounded-lg overflow-hidden">
+              {/* <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                <tr>
+                  <th className="px-4 py-3 text-left">Group</th>
+                  <th className="px-4 py-3 text-left">Count</th>
+                  <th className="px-4 py-3 text-left">Actions</th>
+                </tr>
+              </thead> */}
               <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                 <tr>
                   <th className="px-4 py-3 text-left">Group</th>
-                  <th className="px-4 py-3 text-left">Count</th> {/* Added Count column */}
+                  <th className="px-4 py-3 text-left">Count</th>
                   <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
               </thead>
+
               <tbody className="text-gray-600 text-sm font-light">
                 {fontGroups.map((group, index) => (
                   <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 font-medium">
