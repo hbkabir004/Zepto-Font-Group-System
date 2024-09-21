@@ -13,13 +13,13 @@
 
 ## Introduction
 
-The **Zepto Font Group System** is a web-based Fullstack application that allows users to upload fonts (TTF format only), create font groups, and manage them with features like editing and deleting groups. The application is built using **React.js** and  **TailwindCSS** , providing a responsive and user-friendly interface for font management. This project is designed to showcase full-stack development capabilities, including file uploads, form validation, and dynamic UI rendering.
+The **Zepto Font Group System** is a web-based Fullstack application (<code style="color : name_color">Don't Forget to Run PHP backend locally</code>) that allows users to upload fonts (TTF format only), create font groups, and manage them with features like editing and deleting groups. The application is built using **React.js** and  **TailwindCSS** , providing a responsive and user-friendly interface for font management. This project is designed to showcase full-stack development capabilities, including file uploads, form validation, and dynamic UI rendering.
 
 ---
 
 ## Features
 
-###### **1. Font Upload** :
+**1. Font Upload** :
 
 * Users can upload TTF font files.
 * The uploaded fonts are dynamically added to the browser using the `@font-face` rule for preview.
@@ -137,37 +137,38 @@ Ensure you have the following tools installed on your machine:
    ```
 
    This will start the application locally. Open your browser and navigate to [http://localhost:5173](http://localhost:5173/) to view the frontend app.
-3. **Install dependencies**  (For Backend)
 
-```sh
-   cd backend/
-```
-
-    3.2.**Start the development server** :
-
-```sh
-   php -S localhost:8000
-```
-
-This will start the PHP Backend system locally. Open your browser and navigate to [http://localhost:8000](http://localhost:8000 "PHP Backend") to view the frontend app.
-
----
-
-## How to Use
-
-###### **Uploading Fonts** :
-
-* Drag and drop a `.ttf` font file into the upload area or click to browse for a file.
-* Upon successful upload, the font will appear in the "Our Fonts" list, displaying the font name and a preview in the uploaded style.
-
-###### **Creating Font Groups** :
-
-* Click "Add Row" to add a new font selection field.
-* Select at least two fonts from the dropdown to create a group.
-* Once the group is valid, click "Submit" to save the group.
-* The group will be displayed in the "Font Group List" with an option to edit or delete it.
-
-###### **Managing Font Groups** :
-
-* View the list of all font groups, including the number of fonts in each group.
-* Edit or delete font groups directly from the list.
+   3.1 **Install dependencies**  (For Backend)
+   
+   ```sh
+      cd backend/
+   ```
+   
+   3.2 **Start the development server** :
+   
+   ```sh
+      php -S localhost:8000
+   ```
+   
+   This will start the PHP Backend system locally. Open your browser and navigate to [http://localhost:8000](http://localhost:8000 "PHP Backend") to view the frontend app.
+   
+   ---
+   
+   ## How to Use
+   
+   ###### **Uploading Fonts** :
+   
+   * Drag and drop a `.ttf` font file into the upload area or click to browse for a file.
+   * Upon successful upload, the font will appear in the "Our Fonts" list, displaying the font name and a preview in the uploaded style.
+   
+   ###### **Creating Font Groups** :
+   
+   * Click "Add Row" to add a new font selection field.
+   * Select at least two fonts from the dropdown to create a group.
+   * Once the group is valid, click "Submit" to save the group.
+   * The group will be displayed in the "Font Group List" with an option to edit or delete it.
+   
+   ###### **Managing Font Groups** :
+   
+   * View the list of all font groups, including the number of fonts in each group.
+   * Edit or delete font groups directly from the list.
