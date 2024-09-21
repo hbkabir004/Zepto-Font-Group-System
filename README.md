@@ -6,14 +6,15 @@
 2. [Features](#features)
 3. [Project Structure](#project-structure)
 4. [Technologies Used](#technologies-used)
-5. [Installation Guide](#installation-guide)
-6. [How to Use](#how-to-use)
+5. [Installation Guide ](#installation-guide)
+6. [<code style="color : red">Don't Forget to Run PHP backend locally</code>](#install-dependencies-for-backend)
+7. [How to Use](#how-to-use)
 
 ---
 
 ## Introduction
 
-The **Zepto Font Group System** is a web-based Fullstack application (<code style="color : name_color">Don't Forget to Run PHP backend locally</code>) that allows users to upload fonts (TTF format only), create font groups, and manage them with features like editing and deleting groups. The application is built using **React.js** and  **TailwindCSS** , providing a responsive and user-friendly interface for font management. This project is designed to showcase full-stack development capabilities, including file uploads, form validation, and dynamic UI rendering.
+The **Zepto Font Group System** is a web-based Fullstack application that allows users to upload fonts (TTF format only), create font groups, and manage them with features like editing and deleting groups. The application is built using **React.js** and  **TailwindCSS** , providing a responsive and user-friendly interface for font management. This project is designed to showcase full-stack development capabilities, including file uploads, form validation, and dynamic UI rendering.
 
 ---
 
@@ -138,7 +139,7 @@ Ensure you have the following tools installed on your machine:
 
    This will start the application locally. Open your browser and navigate to [http://localhost:5173](http://localhost:5173/) to view the frontend app.
 
-   3.1 **Install dependencies**  (For Backend)
+   3.1 **Install-Dependencies-For-Backend** 
    
    ```sh
       cd backend/
