@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 class FontGroup {
   constructor() {
@@ -40,20 +40,7 @@ const App = () => {
   const [fonts, setFonts] = useState([]);
   const [selectedFonts, setSelectedFonts] = useState([{ fontName: '' }]);
   const [fontGroups, setFontGroups] = useState([]);
-  const [isDragging, setIsDragging] = useState(false); // New state to track dragging
-
-  // Load font groups from localStorage on component mount
-  useEffect(() => {
-    const storedGroups = JSON.parse(localStorage.getItem('fontGroups')) || [];
-    if (storedGroups.length) {
-      setFontGroups(storedGroups);
-    }
-  }, []);
-
-  // Save font groups to localStorage
-  const saveGroupsToLocalStorage = (groups) => {
-    localStorage.setItem('fontGroups', JSON.stringify(groups));
-  };
+  const [isDragging, setIsDragging] = useState(false);
 
   // Handle File Upload
   const handleFileUpload = (file) => {
@@ -111,7 +98,6 @@ const App = () => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false); // Reset dragging state
-
     const file = e.dataTransfer.files[0];
     handleFileUpload(file);
   };
@@ -137,7 +123,7 @@ const App = () => {
     setSelectedFonts(updatedFonts);
   };
 
-  // Create a font group with selected fonts and save to localStorage
+  // Create a font group with selected fonts and store it in cache (localStorage)
   const handleCreateGroup = () => {
     const validFonts = selectedFonts.filter((font) => font.fontName !== '');
 
@@ -147,29 +133,42 @@ const App = () => {
     }
 
     const newGroup = {
-      id: Date.now(),  // Unique ID for the group
+      id: Date.now(), // Unique ID for the group
       fonts: validFonts,
     };
 
-    const updatedGroups = [...fontGroups, newGroup];
-    setFontGroups(updatedGroups);
-    saveGroupsToLocalStorage(updatedGroups);  // Save to localStorage
+    fontGroup.addGroup(newGroup);
+    setFontGroups([...fontGroup.getGroups()]);
 
-    setSelectedFonts([{ fontName: '' }]); // Reset the font selection
+    // Store the created group in localStorage (cache)
+    localStorage.setItem('fontGroups', JSON.stringify([...fontGroup.getGroups()]));
+
+    // Reset the font selection after creating a group
+    setSelectedFonts([{ fontName: '' }]);
   };
 
-  // Handle delete group
+  // Handle delete group and clear cache
   const handleDeleteGroup = (groupId) => {
-    const updatedGroups = fontGroups.filter(group => group.id !== groupId);
-    setFontGroups(updatedGroups);
-    saveGroupsToLocalStorage(updatedGroups);  // Update localStorage after deletion
+    fontGroup.deleteGroup(groupId);
+    setFontGroups([...fontGroup.getGroups()]);
+
+    // Update the cache after deleting a group
+    localStorage.setItem('fontGroups', JSON.stringify([...fontGroup.getGroups()]));
+
+    // Clear the cache if no groups remain
+    if (fontGroup.getGroups().length === 0) {
+      localStorage.removeItem('fontGroups');
+    }
   };
 
-  // Handle edit group
+  // Handle edit group and clear cache
   const handleEditGroup = (groupId) => {
     const groupToEdit = fontGroups.find(group => group.id === groupId);
     setSelectedFonts(groupToEdit.fonts);  // Load fonts into the form to edit
     handleDeleteGroup(groupId);  // Remove the old group before editing
+
+    // Clear the cache after editing
+    localStorage.removeItem('fontGroups');
   };
 
   return (
@@ -278,7 +277,7 @@ const App = () => {
 
               <tbody className="text-gray-600 text-sm font-light">
                 {fontGroups.map((group, index) => (
-                  <tr key={group.id} className="border-b border-gray-200 hover:bg-gray-50 font-medium">
+                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 font-medium">
                     <td className="px-4 py-3">
                       {group.fonts.map((font, i) => (
                         <span key={i} className="mr-2 bg-gray-200 text-gray-700 py-1 px-2 rounded-lg">
@@ -286,7 +285,9 @@ const App = () => {
                         </span>
                       ))}
                     </td>
-                    <td className="px-4 py-3">{group.fonts.length}</td>
+                    <td className="px-4 py-3">
+                      {group.fonts.length}
+                    </td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleEditGroup(group.id)}
@@ -303,9 +304,11 @@ const App = () => {
                     </td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
+
         )}
       </div>
     </div>
