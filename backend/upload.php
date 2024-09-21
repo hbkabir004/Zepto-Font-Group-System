@@ -25,8 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $destPath = $uploadFileDir . $fileName;
 
             if (move_uploaded_file($fileTmpPath, $destPath)) {
+                // Generate a unique ID for the font
+                $fontId = uniqid('font_');  // Using PHP's uniqid function
+
                 echo json_encode([
                     'status' => 'success',
+                    'fontId' => $fontId,  // Return the generated font ID
                     'fontName' => pathinfo($fileName, PATHINFO_FILENAME),
                     'fontPath' => $destPath
                 ]);

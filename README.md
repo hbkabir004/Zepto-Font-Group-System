@@ -13,7 +13,7 @@
 
 ## Introduction
 
-The **Zepto Font Group System** is a web-based application that allows users to upload fonts (TTF format only), create font groups, and manage them with features like editing and deleting groups. The application is built using **React.js** and  **TailwindCSS** , providing a responsive and user-friendly interface for font management. This project is designed to showcase full-stack development capabilities, including file uploads, form validation, and dynamic UI rendering.
+The **Zepto Font Group System** is a web-based Fullstack application that allows users to upload fonts (TTF format only), create font groups, and manage them with features like editing and deleting groups. The application is built using **React.js** and  **TailwindCSS** , providing a responsive and user-friendly interface for font management. This project is designed to showcase full-stack development capabilities, including file uploads, form validation, and dynamic UI rendering.
 
 ---
 
@@ -53,20 +53,31 @@ The **Zepto Font Group System** is a web-based application that allows users to 
 Here’s a breakdown of the project directory structure:
 
 ```sh
+Zepto-Font-Group-System/
 │
-├── public/
-│   └── index.html        # Main HTML file
-├── src/
-│   ├── fonts             # .ttf file fonts to test the application
-│   ├── App.jsx           # Main application logic
-│   ├── index.css         # Global styles, including TailwindCSS
-│   ├── main.jsx          # React entry point
-│   
-├── package.json          # Node.js dependencies and project info
-├── index.html        	  # Main HTML file
-├── README.md             # Project documentation
-└── tailwind.config.js    # TailwindCSS configuration
-└── vite.config.js    	  # Vite.js configuration
+├── backend/
+│   ├── font-groups.php         # PHP script to handle font group creation, deletion, and retrieval
+│   ├── upload.php              # PHP script to handle font file uploads (TTF files only)
+│   └── uploads/   		# Directory for storing uploaded font files
+│
+├── frontend/
+│   ├── public/
+│   │── index.html                # Main HTML file
+│   └── src/
+│   	├── fonts                 # .ttf file fonts to test the application
+│   	├── App.jsx               # Main application logic
+│   	├── index.css             # Global styles, including TailwindCSS
+│   	├── main.jsx          	  # React entry point
+│       ├── package.json          # Node.js dependencies and project info
+│ 	├── index.html        	  # Main HTML file
+│ 	└── tailwind.config.js    # TailwindCSS configuration
+│ 	└── vite.config.js    	  # Vite.js configuration
+│
+├── .gitignore                  # Git ignore file
+├── README.md                   # Main project documentation (this file)
+├── LICENSE                     # Project license (optional)
+└── package.json                # Main project dependencies
+
 ```
 
 ---
@@ -79,6 +90,7 @@ Here’s a breakdown of the project directory structure:
 * **JavaScript (ES6+)** **& OOP**: Core logic implementation.
 * **HTML5 & CSS3** : Structure and styles for the project.
 * **Node.js** : For managing dependencies and running the development server.
+* **Core PHP & JS** : For building Backend System
 
 ---
 
@@ -99,7 +111,13 @@ Ensure you have the following tools installed on your machine:
    git clone https://github.com/hbkabir004/Zepto-Font-Group-System.git
    cd Zepto-Font-Group-System
    ```
-2. **Install dependencies** :
+2. **Install dependencies**  (For Frontend)
+
+   ```sh
+      git clone https://github.com/hbkabir004/Zepto-Font-Group-System.git
+      cd Zepto-Font-Group-System
+   ```
+
    Using  **npm** :
 
    ```sh
@@ -111,13 +129,26 @@ Ensure you have the following tools installed on your machine:
    ```sh
    yarn install
    ```
-3. **Start the development server** :
+
+   2.2 **Start the development server** :
 
    ```sh
    npm run dev
    ```
 
-   This will start the application locally. Open your browser and navigate to [http://localhost:5173](http://localhost:5173/) to view the app.
+   This will start the application locally. Open your browser and navigate to [http://localhost:5173](http://localhost:5173/) to view the frontend app.
+3. **Install dependencies**  (For Backend)
+
+```sh
+   cd backend/
+```
+
+    3.2**Start the development server** :
+
+```sh
+   php -S localhost:8000
+```
+
 
 ---
 

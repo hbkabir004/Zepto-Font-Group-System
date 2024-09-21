@@ -10,8 +10,8 @@ class FontGroup {
     this.fonts.push(font);
   }
 
-  deleteFont(fontName) {
-    this.fonts = this.fonts.filter((font) => font.name !== fontName);
+  deleteFont(fontId) {
+    this.fonts = this.fonts.filter((font) => font.id !== fontId);
   }
 
   getFonts() {
@@ -22,8 +22,8 @@ class FontGroup {
     this.groups.push(group);
   }
 
-  deleteGroup(groupIndex) {
-    this.groups.splice(groupIndex, 1);
+  deleteGroup(groupId) {
+    this.groups = this.groups.filter((group) => group.id !== groupId);
   }
 
   updateGroup(groupIndex, updatedGroup) {
@@ -54,8 +54,11 @@ const App = () => {
       })
         .then((response) => response.json())
         .then((data) => {
+          console.log('UploadFontData->', data);
+
           if (data.status === 'success') {
             const font = {
+              id: data.fontId,  // Store the unique ID from backend
               name: data.fontName,
               path: data.fontPath,
             };
@@ -82,7 +85,6 @@ const App = () => {
     }
   };
 
-
   // Handle file input change
   const handleFileInputChange = (e) => {
     const file = e.target.files[0];
@@ -107,8 +109,8 @@ const App = () => {
     setIsDragging(false); // Reset dragging state when leaving the area
   };
 
-  const deleteFont = (fontName) => {
-    setFonts((prevFonts) => prevFonts.filter((font) => font.name !== fontName));
+  const deleteFont = (fontId) => {
+    setFonts((prevFonts) => prevFonts.filter((font) => font.id !== fontId));
   };
 
   // Add new row for selecting fonts in group
@@ -122,7 +124,6 @@ const App = () => {
       i === index ? { ...font, fontName: value } : font
     );
     setSelectedFonts(updatedFonts);
-
   };
 
   // Create a font group with selected fonts
@@ -146,8 +147,10 @@ const App = () => {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log('FontGroups=>', data.fontGroups);
+
         if (data.status === 'success') {
-          setFontGroups(data.fontGroups);
+          setFontGroups(data.fontGroups);  // Groups now have unique IDs
         } else {
           alert(data.message);
         }
@@ -155,7 +158,9 @@ const App = () => {
   };
 
   // Handle delete group
-  const handleDeleteGroup = (index) => {
+  const handleDeleteGroup = (groupId) => {
+    console.log("handleDeleteGroup->groupID", groupId);
+
     fetch('http://localhost:8000/font-groups.php', {
       method: 'POST',
       headers: {
@@ -163,38 +168,32 @@ const App = () => {
       },
       body: new URLSearchParams({
         action: 'delete',
-        index: index,
+        id: groupId,  // Send the unique ID to the backend
       }),
-    }).then((response) => response.json())
+    })
+      .then((response) => response.json())
       .then((data) => {
-        console.log("data", data);
+        console.log("handleDeleteGroup-JSON", data);
 
         if (data.status === 'success') {
-          setFontGroups(data.fontGroups);
+          setFontGroups(data.fontGroups);  // Update the list of font groups
         } else {
           alert(data.message);
         }
       });
-
-    console.log(fontGroups); // Your array of font groups
-    console.log(index); // The index you're trying to access
   };
 
   // Handle edit group
-  const handleEditGroup = (index) => {
-    const groupToEdit = fontGroup.getGroups()[index];
-    setSelectedFonts(groupToEdit);
-    handleDeleteGroup(index); // Remove old group before editing
+  const handleEditGroup = (groupId) => {
+    const groupToEdit = fontGroups.find(group => group.id === groupId);
+    setSelectedFonts(groupToEdit.fonts);  // Load fonts into the form to edit
+    handleDeleteGroup(groupId);  // Remove the old group before editing
   };
-
-
 
   return (
     <div className="container mx-auto p-5 mb-10">
       {/* Upload Section with Drag and Drop */}
-      <div
-        className={`border-dashed border-2 ${isDragging ? 'border-blue-400' : 'border-gray-400'} 
-          rounded-lg p-10 text-center mb-6`}
+      <div className={`border-dashed border-2 ${isDragging ? 'border-blue-400' : 'border-gray-400'} rounded-lg p-10 text-center mb-6`}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onDragLeave={handleDragLeave}
@@ -225,14 +224,14 @@ const App = () => {
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
             {fonts.map((font) => (
-              <tr key={font.name} className="border-b border-gray-200 hover:bg-gray-50">
+              <tr key={font.id} className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium">{font.name}</td>
                 <td className="px-4 py-3" style={{ fontFamily: `${font.name}` }}>
                   Example Style
                 </td>
                 <td className="px-4 py-3">
                   <button
-                    onClick={() => deleteFont(font.name)}
+                    onClick={() => deleteFont(font.id)}
                     className="text-red-500 hover:text-red-600 transition-colors duration-200"
                   >
                     Delete
@@ -287,13 +286,6 @@ const App = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full table-auto bg-white shadow-md rounded-lg overflow-hidden">
-              {/* <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                <tr>
-                  <th className="px-4 py-3 text-left">Group</th>
-                  <th className="px-4 py-3 text-left">Count</th>
-                  <th className="px-4 py-3 text-left">Actions</th>
-                </tr>
-              </thead> */}
               <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                 <tr>
                   <th className="px-4 py-3 text-left">Group</th>
@@ -306,24 +298,24 @@ const App = () => {
                 {fontGroups.map((group, index) => (
                   <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 font-medium">
                     <td className="px-4 py-3">
-                      {group.map((font, i) => (
+                      {group.fonts.map((font, i) => (
                         <span key={i} className="mr-2 bg-gray-200 text-gray-700 py-1 px-2 rounded-lg">
                           {font.fontName}
                         </span>
                       ))}
                     </td>
-                    <td className="px-4 py-3"> {/* Count column */}
-                      {group.length} {/* Calculate the number of fonts */}
+                    <td className="px-4 py-3">
+                      {group.fonts.length}
                     </td>
                     <td className="px-4 py-3">
                       <button
-                        onClick={() => handleEditGroup(index)}
+                        onClick={() => handleEditGroup(group.id)}
                         className="text-blue-500 hover:text-blue-600 mr-4 transition-colors duration-200"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteGroup(index)}
+                        onClick={() => handleDeleteGroup(group.id)}
                         className="text-red-500 hover:text-red-600 transition-colors duration-200"
                       >
                         Delete
@@ -331,6 +323,7 @@ const App = () => {
                     </td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
