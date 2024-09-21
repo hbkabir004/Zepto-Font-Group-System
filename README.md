@@ -23,7 +23,6 @@ The **Zepto Font Group System** is a web-based Fullstack application that allows
 
 * Users can upload TTF font files.
 * The uploaded fonts are dynamically added to the browser using the `@font-face` rule for preview.
-
 * Only TTF files are allowed, and invalid file types trigger an error alert.
 
 **2. Font List Display :**
@@ -144,12 +143,13 @@ Ensure you have the following tools installed on your machine:
    cd backend/
 ```
 
-    3.2**Start the development server** :
+    3.2.**Start the development server** :
 
 ```sh
    php -S localhost:8000
 ```
 
+This will start the PHP Backend system locally. Open your browser and navigate to [http://localhost:8000](http://localhost:8000 "PHP Backend") to view the frontend app.
 
 ---
 
