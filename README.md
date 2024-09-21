@@ -19,30 +19,31 @@ The **Zepto Font Group System** is a web-based Fullstack application that allows
 
 ## Features
 
-1. **Font Upload** :
+###### **1. Font Upload** :
 
 * Users can upload TTF font files.
 * The uploaded fonts are dynamically added to the browser using the `@font-face` rule for preview.
+
 * Only TTF files are allowed, and invalid file types trigger an error alert.
 
-1. **Font List Display** :
+**2. Font List Display :**
 
 * After uploading, fonts are listed with their name and a preview of the font style.
 * Users can delete individual fonts from the list.
 
-1. **Font Group Creation** :
+**3. Font Group Creation :**
 
 * Users can create font groups by selecting multiple fonts.
 * Validation ensures that a group contains at least two fonts before submission.
 * Users can dynamically add or remove fonts from the group form.
 
-1. **Font Group Management** :
+**4. Font Group Management :**
 
 * Users can view a list of all font groups.
 * Each group displays the number of fonts it contains.
 * Users can edit or delete font groups.
 
-1. **Responsive UI** :
+**5. Responsive UI :**
 
 * The interface is built with responsiveness in mind, ensuring usability across devices.
 
