@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE_URL = 'http://localhost:8000'; // Change this to your actual backend URL
+// Dynamic API Base URL that works in both local and Codespace environments
+const API_BASE_URL = window.location.hostname.includes('github.dev') || window.location.hostname.includes('app.github.dev')
+  ? `https://${window.location.hostname.replace('3000', '8000')}`
+  : 'http://localhost:8000';
+
+console.log('Using API endpoint:', API_BASE_URL);
 
 const App = () => {
   const [fonts, setFonts] = useState([]);
@@ -28,8 +33,10 @@ const App = () => {
   const fetchFonts = async () => {
     try {
       setError('');
+      setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}/get-fonts.php`);
       const data = await handleApiResponse(response);
+      setIsLoading(false);
       
       if (data.status === 'success') {
         setFonts(data.fonts);
@@ -51,6 +58,7 @@ const App = () => {
         setError(data.message || 'Unknown error fetching fonts');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error fetching fonts:', error);
       setError(`Error fetching fonts: ${error.message}. Make sure your backend server is running at ${API_BASE_URL}`);
     }
@@ -60,8 +68,10 @@ const App = () => {
   const fetchFontGroups = async () => {
     try {
       setError('');
+      setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}/font-groups.php?action=getGroups`);
       const data = await handleApiResponse(response);
+      setIsLoading(false);
       
       if (data.status === 'success') {
         setFontGroups(data.fontGroups);
@@ -69,6 +79,7 @@ const App = () => {
         setError(data.message || 'Unknown error fetching font groups');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error fetching font groups:', error);
       setError(`Error fetching font groups: ${error.message}`);
     }
@@ -157,6 +168,7 @@ const App = () => {
   const deleteFont = async (fontId) => {
     try {
       setError('');
+      setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}/delete-font.php`, {
         method: 'POST',
         headers: {
@@ -166,12 +178,15 @@ const App = () => {
       });
 
       const data = await handleApiResponse(response);
+      setIsLoading(false);
+      
       if (data.status === 'success') {
         setFonts(prevFonts => prevFonts.filter(font => font.id !== fontId));
       } else {
         setError(data.message || 'Error deleting font');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error deleting font:', error);
       setError(`Error deleting font: ${error.message}`);
     }
@@ -201,6 +216,7 @@ const App = () => {
 
     try {
       setError('');
+      setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}/font-groups.php`, {
         method: 'POST',
         headers: {
@@ -213,6 +229,8 @@ const App = () => {
       });
 
       const data = await handleApiResponse(response);
+      setIsLoading(false);
+      
       if (data.status === 'success') {
         setFontGroups(data.fontGroups);
         // Reset the font selection after creating a group
@@ -222,6 +240,7 @@ const App = () => {
         setError(data.message || 'Error creating font group');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error creating font group:', error);
       setError(`Error creating font group: ${error.message}`);
     }
@@ -231,6 +250,7 @@ const App = () => {
   const handleDeleteGroup = async (groupId) => {
     try {
       setError('');
+      setIsLoading(true);
       const response = await fetch(`${API_BASE_URL}/font-groups.php`, {
         method: 'POST',
         headers: {
@@ -243,12 +263,15 @@ const App = () => {
       });
 
       const data = await handleApiResponse(response);
+      setIsLoading(false);
+      
       if (data.status === 'success') {
         setFontGroups(data.fontGroups);
       } else {
         setError(data.message || 'Error deleting font group');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error deleting font group:', error);
       setError(`Error deleting font group: ${error.message}`);
     }
@@ -270,8 +293,39 @@ const App = () => {
     setError('');
   };
 
+  // Function to test API connection
+  const testApiConnection = async () => {
+    try {
+      setError('');
+      setIsLoading(true);
+      const response = await fetch(`${API_BASE_URL}/test-api.php`);
+      const data = await handleApiResponse(response);
+      setIsLoading(false);
+      
+      if (data.status === 'success') {
+        setError(`API Connection Successful! ${data.message}`);
+      } else {
+        setError(data.message || 'API test failed');
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error('API test error:', error);
+      setError(`API test error: ${error.message}`);
+    }
+  };
+
   return (
     <div className="container mx-auto p-5 mb-10">
+      {/* API Connection Test */}
+      <div className="mb-6">
+        <button 
+          onClick={testApiConnection}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Test API Connection
+        </button>
+      </div>
+
       {/* Error display */}
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
@@ -282,6 +336,13 @@ const App = () => {
           >
             Retry Connection
           </button>
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
+          <p>Loading... Please wait</p>
         </div>
       )}
 
@@ -303,13 +364,6 @@ const App = () => {
           onChange={handleFileInputChange}
         />
       </div>
-
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="text-center py-4">
-          <p>Uploading font...</p>
-        </div>
-      )}
 
       {/* Font List Section */}
       <div>

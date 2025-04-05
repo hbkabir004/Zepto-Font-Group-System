@@ -1,0 +1,10 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# If the requested file or directory exists, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route all other requests through middleware.php
+RewriteRule ^ middleware.php [L,QSA]
