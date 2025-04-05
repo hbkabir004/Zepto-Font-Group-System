@@ -1,17 +1,11 @@
 <?php
 // backend/font-groups.php
 
-// Allow CORS
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json");
+// Include CORS headers
+require_once 'includes/cors-headers.php';
 
-// If this is an OPTIONS request (preflight request), stop further execution
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
+// Set the content type for the response
+header("Content-Type: application/json");
 
 // Required for MongoDB
 require 'vendor/autoload.php';

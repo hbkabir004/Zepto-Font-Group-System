@@ -8,6 +8,7 @@ const App = () => {
   const [fontGroups, setFontGroups] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Fetch fonts and groups on component mount
   useEffect(() => {
@@ -15,11 +16,21 @@ const App = () => {
     fetchFontGroups();
   }, []);
 
+  // Helper function to handle API responses
+  const handleApiResponse = async (response) => {
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+    }
+    return await response.json();
+  };
+
   // Fetch all fonts from the database
   const fetchFonts = async () => {
     try {
+      setError('');
       const response = await fetch(`${API_BASE_URL}/get-fonts.php`);
-      const data = await response.json();
+      const data = await handleApiResponse(response);
+      
       if (data.status === 'success') {
         setFonts(data.fonts);
         
@@ -36,33 +47,42 @@ const App = () => {
           );
           document.head.appendChild(newStyle);
         });
+      } else {
+        setError(data.message || 'Unknown error fetching fonts');
       }
     } catch (error) {
       console.error('Error fetching fonts:', error);
+      setError(`Error fetching fonts: ${error.message}. Make sure your backend server is running at ${API_BASE_URL}`);
     }
   };
 
   // Fetch all font groups from the database
   const fetchFontGroups = async () => {
     try {
+      setError('');
       const response = await fetch(`${API_BASE_URL}/font-groups.php?action=getGroups`);
-      const data = await response.json();
+      const data = await handleApiResponse(response);
+      
       if (data.status === 'success') {
         setFontGroups(data.fontGroups);
+      } else {
+        setError(data.message || 'Unknown error fetching font groups');
       }
     } catch (error) {
       console.error('Error fetching font groups:', error);
+      setError(`Error fetching font groups: ${error.message}`);
     }
   };
 
   // Handle file upload
   const handleFileUpload = async (file) => {
     if (!file?.name?.endsWith('.ttf')) {
-      alert('Please upload only TTF files!');
+      setError('Please upload only TTF files!');
       return;
     }
 
     setIsLoading(true);
+    setError('');
     const formData = new FormData();
     formData.append('fontFile', file);
 
@@ -72,7 +92,7 @@ const App = () => {
         body: formData,
       });
 
-      const data = await response.json();
+      const data = await handleApiResponse(response);
       setIsLoading(false);
 
       if (data.status === 'success') {
@@ -97,12 +117,12 @@ const App = () => {
         );
         document.head.appendChild(newStyle);
       } else {
-        alert(data.message || 'Error uploading font');
+        setError(data.message || 'Error uploading font');
       }
     } catch (error) {
       setIsLoading(false);
       console.error('Error uploading font:', error);
-      alert('Error uploading font. Please try again.');
+      setError(`Error uploading font: ${error.message}`);
     }
   };
 
@@ -136,6 +156,7 @@ const App = () => {
   // Delete a font
   const deleteFont = async (fontId) => {
     try {
+      setError('');
       const response = await fetch(`${API_BASE_URL}/delete-font.php`, {
         method: 'POST',
         headers: {
@@ -144,15 +165,15 @@ const App = () => {
         body: JSON.stringify({ id: fontId }),
       });
 
-      const data = await response.json();
+      const data = await handleApiResponse(response);
       if (data.status === 'success') {
         setFonts(prevFonts => prevFonts.filter(font => font.id !== fontId));
       } else {
-        alert(data.message || 'Error deleting font');
+        setError(data.message || 'Error deleting font');
       }
     } catch (error) {
       console.error('Error deleting font:', error);
-      alert('Error deleting font. Please try again.');
+      setError(`Error deleting font: ${error.message}`);
     }
   };
 
@@ -174,11 +195,12 @@ const App = () => {
     const validFonts = selectedFonts.filter((font) => font.fontName !== '');
 
     if (validFonts.length < 2) {
-      alert('Please select at least two fonts to create a group.');
+      setError('Please select at least two fonts to create a group.');
       return;
     }
 
     try {
+      setError('');
       const response = await fetch(`${API_BASE_URL}/font-groups.php`, {
         method: 'POST',
         headers: {
@@ -190,23 +212,25 @@ const App = () => {
         }),
       });
 
-      const data = await response.json();
+      const data = await handleApiResponse(response);
       if (data.status === 'success') {
         setFontGroups(data.fontGroups);
         // Reset the font selection after creating a group
         setSelectedFonts([{ fontName: '' }]);
+        setError('');
       } else {
-        alert(data.message || 'Error creating font group');
+        setError(data.message || 'Error creating font group');
       }
     } catch (error) {
       console.error('Error creating font group:', error);
-      alert('Error creating font group. Please try again.');
+      setError(`Error creating font group: ${error.message}`);
     }
   };
 
   // Delete a font group
   const handleDeleteGroup = async (groupId) => {
     try {
+      setError('');
       const response = await fetch(`${API_BASE_URL}/font-groups.php`, {
         method: 'POST',
         headers: {
@@ -218,15 +242,15 @@ const App = () => {
         }),
       });
 
-      const data = await response.json();
+      const data = await handleApiResponse(response);
       if (data.status === 'success') {
         setFontGroups(data.fontGroups);
       } else {
-        alert(data.message || 'Error deleting font group');
+        setError(data.message || 'Error deleting font group');
       }
     } catch (error) {
       console.error('Error deleting font group:', error);
-      alert('Error deleting font group. Please try again.');
+      setError(`Error deleting font group: ${error.message}`);
     }
   };
 
@@ -239,8 +263,28 @@ const App = () => {
     }
   };
 
+  // Function to retry API connections
+  const handleRetry = () => {
+    fetchFonts();
+    fetchFontGroups();
+    setError('');
+  };
+
   return (
     <div className="container mx-auto p-5 mb-10">
+      {/* Error display */}
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+          <p>{error}</p>
+          <button 
+            onClick={handleRetry}
+            className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded"
+          >
+            Retry Connection
+          </button>
+        </div>
+      )}
+
       {/* Upload Section with Drag and Drop */}
       <div className={`border-dashed border-2 ${isDragging ? 'border-blue-400' : 'border-gray-400'} rounded-lg p-10 text-center mb-6`}
         onDragOver={handleDragOver}
