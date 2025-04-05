@@ -1,14 +1,20 @@
 <?php
+// backend/font-groups.php
+
 // Allow CORS
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-session_start();
-
-if (!isset($_SESSION['fontGroups'])) {
-    $_SESSION['fontGroups'] = [];
+// If this is an OPTIONS request (preflight request), stop further execution
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit;
 }
+
+// Required for MongoDB
+require 'vendor/autoload.php';
+require_once 'db/connection.php';
 
 $action = $_POST['action'] ?? '';
 
@@ -16,41 +22,93 @@ switch ($action) {
     case 'create':
         $group = json_decode($_POST['group'], true);
         if (count($group) >= 2) {
-            // Generate a unique ID for the group
             $groupId = uniqid();
-            $fontGroup = ['id' => $groupId, 'fonts' => $group];
+            $fontGroup = [
+                'id' => $groupId,
+                'fonts' => $group,
+                'created_at' => new MongoDB\BSON\UTCDateTime(time() * 1000)
+            ];
 
-            $_SESSION['fontGroups'][] = $fontGroup;  // Store group with unique ID
-            echo json_encode(['status' => 'success', 'fontGroups' => $_SESSION['fontGroups']]);
-            
+            try {
+                $collection = getFontGroupsCollection();
+                if (isset($collection['status']) && $collection['status'] === 'error') {
+                    echo json_encode($collection);
+                    break;
+                }
+
+                $result = $collection->insertOne($fontGroup);
+                if ($result->getInsertedCount() > 0) {
+                    $fontGroups = $collection->find([], ['sort' => ['created_at' => -1]])->toArray();
+                    echo json_encode([
+                        'status' => 'success',
+                        'fontGroups' => array_map(function ($doc) {
+                            return [
+                                'id' => $doc['id'],
+                                'fonts' => $doc['fonts']
+                            ];
+                        }, $fontGroups)
+                    ]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Failed to create font group.']);
+                }
+            } catch (Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+            }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'You must select at least two fonts.']);
         }
         break;
 
     case 'delete':
-        $groupId = $_POST['id'];  // Get the group ID from the frontend
-        $groupIndex = null;
-
-        // Find the index of the group by its ID
-        foreach ($_SESSION['fontGroups'] as $index => $group) {
-            if ($group['id'] === $groupId) {
-                $groupIndex = $index;
+        $groupId = $_POST['id'];
+        try {
+            $collection = getFontGroupsCollection();
+            if (isset($collection['status']) && $collection['status'] === 'error') {
+                echo json_encode($collection);
                 break;
             }
-        }
 
-        // If group is found, delete it
-        if ($groupIndex !== null) {
-            array_splice($_SESSION['fontGroups'], $groupIndex, 1);  // Remove the group from the session
-            echo json_encode(['status' => 'success', 'fontGroups' => $_SESSION['fontGroups']]);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid group ID.']);
+            $result = $collection->deleteOne(['id' => $groupId]);
+            if ($result->getDeletedCount() > 0) {
+                $fontGroups = $collection->find([], ['sort' => ['created_at' => -1]])->toArray();
+                echo json_encode([
+                    'status' => 'success',
+                    'fontGroups' => array_map(function ($doc) {
+                        return [
+                            'id' => $doc['id'],
+                            'fonts' => $doc['fonts']
+                        ];
+                    }, $fontGroups)
+                ]);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid group ID or group not found.']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
         }
         break;
 
     case 'getGroups':
-        echo json_encode(['status' => 'success', 'fontGroups' => $_SESSION['fontGroups']]);
+        try {
+            $collection = getFontGroupsCollection();
+            if (isset($collection['status']) && $collection['status'] === 'error') {
+                echo json_encode($collection);
+                break;
+            }
+
+            $fontGroups = $collection->find([], ['sort' => ['created_at' => -1]])->toArray();
+            echo json_encode([
+                'status' => 'success',
+                'fontGroups' => array_map(function ($doc) {
+                    return [
+                        'id' => $doc['id'],
+                        'fonts' => $doc['fonts']
+                    ];
+                }, $fontGroups)
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        }
         break;
 
     default:
