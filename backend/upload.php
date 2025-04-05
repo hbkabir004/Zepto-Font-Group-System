@@ -39,9 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (move_uploaded_file($fileTmpPath, $destPath)) {
                 try {
-                    // Save font metadata to MongoDB
+                    // Save font metadata to MongoDB Atlas
                     $collection = getFontsCollection();
-                    if (isset($collection['status']) && $collection['status'] === 'error') {
+                    if (is_array($collection) && isset($collection['status']) && $collection['status'] === 'error') {
                         echo json_encode($collection); // Return the error
                         exit;
                     }

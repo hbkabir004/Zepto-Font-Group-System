@@ -21,7 +21,7 @@ function getMongoClient() {
 // Function to get the fonts database
 function getFontsDB() {
     $client = getMongoClient();
-    if (isset($client['status']) && $client['status'] === 'error') {
+    if (is_array($client) && isset($client['status']) && $client['status'] === 'error') {
         return $client; // Return error if connection failed
     }
     
@@ -31,7 +31,7 @@ function getFontsDB() {
 // Function to get the font groups collection
 function getFontGroupsCollection() {
     $db = getFontsDB();
-    if (isset($db['status']) && $db['status'] === 'error') {
+    if (is_array($db) && isset($db['status']) && $db['status'] === 'error') {
         return $db; // Return error if connection failed
     }
     
@@ -41,7 +41,7 @@ function getFontGroupsCollection() {
 // Function to get the fonts collection
 function getFontsCollection() {
     $db = getFontsDB();
-    if (isset($db['status']) && $db['status'] === 'error') {
+    if (is_array($db) && isset($db['status']) && $db['status'] === 'error') {
         return $db; // Return error if connection failed
     }
     

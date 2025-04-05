@@ -5,6 +5,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Content-Type: application/json");
 
 // If this is an OPTIONS request (preflight request), stop further execution
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
@@ -16,12 +17,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 require 'vendor/autoload.php';
 require_once 'db/connection.php';
 
-$action = $_POST['action'] ?? '';
+// Get the request body for POST requests
+$requestBody = file_get_contents('php://input');
+$requestData = json_decode($requestBody, true);
+
+// Determine the action from POST data or JSON request body
+$action = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? ($requestData['action'] ?? '');
+} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $action = $_GET['action'] ?? '';
+}
 
 switch ($action) {
     case 'create':
-        $group = json_decode($_POST['group'], true);
-        if (count($group) >= 2) {
+        $group = $_POST['group'] ?? ($requestData['group'] ?? '');
+        if (is_string($group)) {
+            $group = json_decode($group, true);
+        }
+        
+        if (is_array($group) && count($group) >= 2) {
             $groupId = uniqid();
             $fontGroup = [
                 'id' => $groupId,
@@ -31,14 +46,14 @@ switch ($action) {
 
             try {
                 $collection = getFontGroupsCollection();
-                if (isset($collection['status']) && $collection['status'] === 'error') {
+                if (is_array($collection) && isset($collection['status']) && $collection['status'] === 'error') {
                     echo json_encode($collection);
                     break;
                 }
 
                 $result = $collection->insertOne($fontGroup);
                 if ($result->getInsertedCount() > 0) {
-                    $fontGroups = $collection->find([], ['sort' => ['created_at' => -1]])->toArray();
+                    $fontGroups = iterator_to_array($collection->find([], ['sort' => ['created_at' => -1]]));
                     echo json_encode([
                         'status' => 'success',
                         'fontGroups' => array_map(function ($doc) {
@@ -60,17 +75,17 @@ switch ($action) {
         break;
 
     case 'delete':
-        $groupId = $_POST['id'];
+        $groupId = $_POST['id'] ?? ($requestData['id'] ?? '');
         try {
             $collection = getFontGroupsCollection();
-            if (isset($collection['status']) && $collection['status'] === 'error') {
+            if (is_array($collection) && isset($collection['status']) && $collection['status'] === 'error') {
                 echo json_encode($collection);
                 break;
             }
 
             $result = $collection->deleteOne(['id' => $groupId]);
             if ($result->getDeletedCount() > 0) {
-                $fontGroups = $collection->find([], ['sort' => ['created_at' => -1]])->toArray();
+                $fontGroups = iterator_to_array($collection->find([], ['sort' => ['created_at' => -1]]));
                 echo json_encode([
                     'status' => 'success',
                     'fontGroups' => array_map(function ($doc) {
@@ -91,12 +106,12 @@ switch ($action) {
     case 'getGroups':
         try {
             $collection = getFontGroupsCollection();
-            if (isset($collection['status']) && $collection['status'] === 'error') {
+            if (is_array($collection) && isset($collection['status']) && $collection['status'] === 'error') {
                 echo json_encode($collection);
                 break;
             }
 
-            $fontGroups = $collection->find([], ['sort' => ['created_at' => -1]])->toArray();
+            $fontGroups = iterator_to_array($collection->find([], ['sort' => ['created_at' => -1]]));
             echo json_encode([
                 'status' => 'success',
                 'fontGroups' => array_map(function ($doc) {
