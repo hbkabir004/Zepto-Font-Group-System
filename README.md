@@ -115,8 +115,7 @@ Ensure you have the following tools installed on your machine:
 2. **Install dependencies**  (For Frontend)
 
    ```sh
-      git clone https://github.com/hbkabir004/Zepto-Font-Group-System.git
-      cd Zepto-Font-Group-System
+   cd frontend
    ```
 
    Using  **npm** :
@@ -142,13 +141,13 @@ Ensure you have the following tools installed on your machine:
    3.1 **Install-Dependencies-For-Backend** 
    
    ```sh
-      cd backend/
+   cd backend
    ```
    
    3.2 **Start the development server** :
    
    ```sh
-      php -S localhost:8000
+   php -S localhost:8000
    ```
    
    This will start the PHP Backend system locally. Open your browser and navigate to [http://localhost:8000](http://localhost:8000 "PHP Backend") to view the frontend app.
