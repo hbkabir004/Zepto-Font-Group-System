@@ -1,12 +1,35 @@
 <?php
 // backend/db/connection.php
 
-// MongoDB connection details
-$mongoUri = "mongodb+srv://hbkabir004:pQWGhh6fpfY3nydG@fontsystem.icir9hv.mongodb.net/?retryWrites=true&w=majority&appName=FontSystem";
+// MongoDB connection details using environment variables
+function getMongoUri() {
+    // Check for environment variable first
+    $mongoUri = getenv('MONGODB_URI');
+    
+    // If not found in environment, look for it in .env file
+    if (!$mongoUri) {
+        if (file_exists(__DIR__ . '/../.env')) {
+            $envVars = parse_ini_file(__DIR__ . '/../.env');
+            $mongoUri = $envVars['MONGODB_URI'] ?? null;
+        }
+    }
+    
+    // Fallback to a default for local development only (not recommended for production)
+    if (!$mongoUri) {
+        error_log('Warning: MONGODB_URI environment variable not set. Using default connection string.');
+        return null;
+    }
+    
+    return $mongoUri;
+}
 
 // Function to get MongoDB client
 function getMongoClient() {
-    global $mongoUri;
+    $mongoUri = getMongoUri();
+    
+    if (!$mongoUri) {
+        return ['status' => 'error', 'message' => 'MongoDB connection string not configured. Please set MONGODB_URI environment variable.'];
+    }
     
     try {
         // Create a new MongoDB client
